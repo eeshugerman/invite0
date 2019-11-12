@@ -1,0 +1,19 @@
+<html>
+  <body>
+    <header>
+      {% block header %}{% endblock %}
+    </header>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <hr>
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    <hr>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </body>
+</html>

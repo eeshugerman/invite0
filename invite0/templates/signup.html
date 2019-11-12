@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Hi {{ email_address }}!</h1>
+<h3>Welcome to {{ config.ORG_NAME }}! Let's get you signed up.</h3>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}<br>
+        {% for error in form.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </div>
+    <div>
+        {{ form.confirm_password.label }}<br>
+        {{ form.confirm_password(size=32) }}<br>
+        {% for error in form.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </div>
+    <br>
+    <div>
+        Password requirements:
+        <ul>
+            <li>eight or more characters</li>
+            <li>one or more lowercase letters [a-z]</li>
+            <li>one or more uppercase letters [A-Z]</li>
+            <li>one or more numbers [0-9]</li>
+            <li>one or more special characters [!@#$%^&*]</li>
+        </ul>
+    </div>
+    {{ form.submit() }}
+</form>
+{% endblock %}

@@ -1,0 +1,10 @@
+gunicorn
+
+flask
+flask-wtf
+flask-mail
+
+python-jose
+authlib
+environs
+requests
