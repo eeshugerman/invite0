@@ -114,7 +114,7 @@ def requires_permission(required_permission: str):
         def decorated(*args, **kwargs):
             if required_permission in get_user_permissions():
                 return func(*args, **kwargs)
-            app.logger.warning(f'A user lacking the `{required_permission}` permission'
+            app.logger.warning(f'A user lacking the `{required_permission}` permission '
                                f'tried to access {request.path}')
             # TODO: logout button
             return 'ERROR: insufficient permissions'

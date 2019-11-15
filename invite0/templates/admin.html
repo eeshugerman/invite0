@@ -7,7 +7,7 @@
 {% block content %}
 <form action="" method="post">
   {{ form.hidden_tag() }}
-  <h1>Send invitation</h1>
+  <h1>Invite a new user to {{ config.ORG_NAME }}</h1>
   <div>
     {{ form.email.label }}<br>
     {{ form.email() }}<br>
