@@ -4,6 +4,12 @@ from environs import Env
 env = Env()
 env.read_env()
 
+SERVER_NAME = env.str('INVITE0_DOMAIN')
+SECRET_KEY = env.str('SECRET_KEY')
+
+ORG_NAME = env.str('ORG_NAME')
+INVITE_EXPIRATION_DAYS = env.decimal('INVITE_EXPIRATION_DAYS', default=5)
+INVITE_PERMISSION = env.str('INVITE_PERMISSION', default='send:invitation')
 
 MAIL_SERVER = env.str('MAIL_SERVER', default='localhost')
 MAIL_PORT = env.str('MAIL_PORT', default=25)
@@ -19,10 +25,3 @@ AUTH0_CLIENT_ID = env.str('AUTH0_CLIENT_ID')
 AUTH0_CLIENT_SECRET = env.str('AUTH0_CLIENT_SECRET')
 AUTH0_AUDIENCE = env.str('AUTH0_AUDIENCE')
 AUTH0_DOMAIN = env.str('AUTH0_DOMAIN')
-
-SECRET_KEY = env.str('SECRET_KEY')
-
-SERVER_NAME = env.str('INVITE0_DOMAIN', default='localhost:8000')
-ORG_NAME = env.str('ORG_NAME')
-INVITE_EXPIRATION_DAYS = env.decimal('INVITE_EXPIRATION_DAYS', default=5)
-INVITE_PERMISSION = env.str('INVITE_PERMISSION', default='create:invite')
