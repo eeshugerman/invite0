@@ -1,10 +1,10 @@
-gunicorn
+gunicorn==19.9.*
 
-flask
-flask-wtf
-flask-mail
+flask==1.1.*
+flask-wtf==0.14.*
+flask-mail==0.9.*
 
-python-jose
-authlib
-environs
-requests
+authlib==0.12.*
+itsdangerous==1.1.*
+environs==6.1.*
+requests==2.22.*
