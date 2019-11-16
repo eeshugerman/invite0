@@ -71,6 +71,7 @@ services:
 ```
 ### 3. Run `docker-compose up`
 
+### 4. Log in at `localhost:8000/admin`
 # Configuration
 ## Environment variables
 See available variables and their defaults in [config.py](invite0/config.py).
