@@ -42,7 +42,7 @@ This approach enables us to send single-use, temporary invite links, and verifie
   1. `Users & Roles` -> `Users` -> `<your email address>` -> `Permissions` -> `Assign Permissions`
   2. Select the `send:invitation` permission
 
-### 2. Create your `docker-compose.yml`
+#### 2. Create your `docker-compose.yml`
 Here's an example of a minimal setup with Docker Compose:
 ```yaml
 version: "3"
@@ -71,7 +71,7 @@ services:
       AUTH0_DOMAIN: <tenant>.auth0.com
       AUTH0_AUDIENCE: <audience>
 ```
-### 3. Run `docker-compose up`
+#### 3. Run `docker-compose up`
 
 ### 4. Log in at `localhost:8000/admin`
 # Configuration
