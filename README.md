@@ -7,7 +7,6 @@ By default, your Auth0 tenant is open for signup to anyone on the web. This may 
 
   1. create users manually in the UI and by some means send credentials to new users (yuck!)
   2. handle user creation in your application code via the Management API
-    - a somewhat curious approach to this is documented [here](https://auth0.com/docs/design/creating-invite-only-applications)
 
 (1) poses glaring problems for security and scalability. (2) may be a fine option _if you're developing an application_ -- but what if you are simply integrating software that you do not develop? This is where Invite0 comes in to play.
 
