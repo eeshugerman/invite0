@@ -4,7 +4,7 @@ from typing import List
 
 from flask import session, redirect, url_for, request
 from flask import current_app as app
-from authlib.flask.client import OAuth
+from authlib.integrations.flask_client import OAuth
 
 import invite0.config as conf
 from invite0.auth0._client import Auth0ManagementAPIClient
