@@ -26,7 +26,6 @@ class Auth0ManagementAPIClient:
         )
         response.raise_for_status()
         self._auth = response.json()
-        self._auth['expires_in'] = 600  # testing
         access_token = self._auth['access_token']
         self._session.headers['Authorization'] = f'Bearer {access_token}'
         self._auth_time = datetime.now()
