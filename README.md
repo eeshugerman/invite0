@@ -83,8 +83,8 @@ You can override the default HTML and CSS with bind-mounts:
 services:
   invite0:
     volumes:
-      - ./signup.html:/invite0/invite0/templates/signup.html    # just the signup page, or
-      - ./templates/:/invite0/invite0/templates/                # all HTML including invite email
-      - ./styles.css:/invite0/invite0/static/css/styles.css
+      - ./signup.html:/invite0/templates/signup.html    # just the signup page, or
+      - ./templates/:/invite0/templates/                # all HTML including invite email
+      - ./styles.css:/invite0/static/css/styles.css
 ```
 Refer to the default HTML [here](invite0/templates).
