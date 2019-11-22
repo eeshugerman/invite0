@@ -31,10 +31,10 @@ This approach enables us to send single-use, temporary invite links, and verifie
   1. Click `Applications` -> `<API name from step 1.2> (Test Application)`
   2. _Optional_: remove `(Test Application)` from the application name, or rename as you see fit
   3. Add the allowed callback and logout URLs
-    - allowed callback URL: `https://<your Invite0 domain>/login_callback`
-    - allowed logout URL: `https://<your Invite0 domain>/login` (yes, that reads `login`)
-    - for local testing, `<your Invite0 domain>` is `http://localhost:8000`
-    - don't forget to click `Save Changes` at the bottom of the page!
+      - allowed callback URL: `https://<your Invite0 domain>/login_callback`
+      - allowed logout URL: `https://<your Invite0 domain>/login` (yes, that reads `login`)
+      - for local testing, `<your Invite0 domain>` is `http://localhost:8000`
+      - don't forget to click `Save Changes` at the bottom of the page!
   4. On the `APIs` tab, grant access to the Management API for the `read:users` and `create:users` permisssions
 
 #### 3. Grant your user the `send:invitation` permission
