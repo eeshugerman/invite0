@@ -2,7 +2,7 @@ from functools import wraps
 from urllib.parse import urlencode
 from typing import List
 
-from flask import session, redirect, url_for, request
+from flask import session, redirect, url_for, request, render_template
 from flask import current_app as app
 from authlib.integrations.flask_client import OAuth
 
@@ -116,7 +116,10 @@ def requires_permission(required_permission: str):
                 return func(*args, **kwargs)
             app.logger.warning(f'A user lacking the `{required_permission}` permission '
                                f'tried to access {request.path}')
-            # TODO: logout button
-            return 'ERROR: insufficient permissions'
+            return render_template(
+                'error.html',
+                message="Your account lacks the permissions required to access this page.",
+                logout_button=True
+            )
         return decorated
     return decorator

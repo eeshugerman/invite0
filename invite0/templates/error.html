@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3> Oops! An error occured:</h3>
+<div>
+  <p>{{ message }}</p>
+</div>
+
+{% if logout_button %}
+<a class="btn" href="/logout">logout</a>
+{% endif %}
+
+{% endblock %}

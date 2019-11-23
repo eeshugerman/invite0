@@ -3,7 +3,6 @@ from flask import redirect, render_template, flash, url_for
 
 from itsdangerous import SignatureExpired, BadSignature
 
-
 import invite0.config as conf
 from invite0.forms import SignUpForm, InviteForm
 from invite0.mail import send_invite
@@ -61,15 +60,16 @@ def admin():
 
 @app.route('/signup/<token>', methods=['GET', 'POST'])
 def signup(token):
+    def error_page(message):
+        return render_template('error.html', message=message)
     try:
         email_address = read_token(token)
-    # TODO: proper error pages
     except SignatureExpired:
         app.logger.info('recieved expired invitation token')
-        return 'Sorry, this link has expired. Please request a new invitation link.'
+        return error_page('This link has expired. Please request a new invitation link.')
     except BadSignature:
         app.logger.warning('recieved invalid invitation token')
-        return 'ERROR: invalid invitation token'
+        return error_page('invalid signup link')
 
     form = SignUpForm()
     if form.validate_on_submit():

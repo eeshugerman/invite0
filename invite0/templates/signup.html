@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Hi {{ email_address }}!</h1>
 <h3>Welcome to {{ config.ORG_NAME }}! Let's get you signed up.</h3>
-<form action="" method="post">
+<form method="post">
     {{ form.hidden_tag() }}
     <div>
         {{ form.password.label }}<br>
