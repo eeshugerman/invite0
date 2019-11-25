@@ -65,10 +65,10 @@ def signup(token):
     try:
         email_address = read_token(token)
     except SignatureExpired:
-        app.logger.info('recieved expired invitation token')
+        app.logger.info('Recieved expired invitation token')
         return error_page('This link has expired. Please request a new invitation link.')
     except BadSignature:
-        app.logger.warning('recieved invalid invitation token')
+        app.logger.warning('Recieved invalid invitation token')
         return error_page('invalid signup link')
 
     form = SignUpForm()
@@ -82,10 +82,12 @@ def signup(token):
         except UserAlreadyExistsError:
             flash('An account already exists for your email address.')
             # TODO: password reset link
-        except Exception:
+        except Exception as e:
             flash('An unknown error occured.')
+            app.logger.error(f'Failed to create account for {email_address}:', exc_info=e)
 
         flash('Account created!')
+        app.logger.info(f'Created account for {email_address}')
         # TODO: redirect somewhere nice -- SSO dashboard extension?
 
     return render_template(

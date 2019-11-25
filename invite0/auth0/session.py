@@ -118,7 +118,7 @@ def requires_permission(required_permission: str):
                                f'tried to access {request.path}')
             return render_template(
                 'error.html',
-                message="Your account lacks the permissions required to access this page.",
+                message='Your account lacks the permissions required to access this page.',
                 logout_button=True
             )
         return decorated
