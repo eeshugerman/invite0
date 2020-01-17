@@ -38,6 +38,7 @@ def login_redirect():
       - https://auth0.com/docs/flows/concepts/auth-code
       - https://auth0.com/docs/flows/guides/auth-code/call-api-auth-code
       - https://github.com/auth0-samples/auth0-python-web-app/blob/master/01-Login/server.py
+
     """
     return _oauth_client.authorize_redirect(
         redirect_uri=url_for('login_callback', _external=True),
@@ -47,7 +48,7 @@ def login_redirect():
 
 def handle_login_callback():
     """
-    Complete authentication flow and store user info
+    Complete authentication flow, store user info, and return the original route
 
     The authorization code is fetched from the request context and exchanged
     for an access token. The access token is used to call the /userinfo endpoint
@@ -61,6 +62,8 @@ def handle_login_callback():
         'user_id': userinfo['sub'],
         'name': userinfo['name'],
     }
+    # TODO: change fallback to '/myaccount' once implemented
+    return session.get('login_dest', '/admin')
 
 
 def logout_redirect():
@@ -77,14 +80,17 @@ def logout_redirect():
     return redirect(f'https://{conf.AUTH0_DOMAIN}/v2/logout?{params}')
 
 
-def requires_auth(func):
-    """If user is not logged in, redirect to /login"""
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        if 'profile' not in session:
-            return redirect('/login')
-        return func(*args, **kwargs)
-    return decorated
+def requires_login(route):
+    """If user is not logged in, initiate authentication flow"""
+    def decorator(func):
+        @wraps(func)
+        def decorated(*args, **kwargs):
+            if 'profile' not in session:
+                session['login_dest'] = route
+                return redirect('/login')
+            return func(*args, **kwargs)
+        return decorated
+    return decorator
 
 
 def requires_permission(required_permission: str):

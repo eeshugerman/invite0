@@ -12,7 +12,7 @@ from invite0.auth0.session import (
     login_redirect,
     handle_login_callback,
     logout_redirect,
-    requires_auth,
+    requires_login,
     requires_permission
 )
 from invite0.auth0.exceptions import (
@@ -21,16 +21,14 @@ from invite0.auth0.exceptions import (
     UserAlreadyExistsError,
 )
 
-
 @app.route('/login')
 def login():
     return login_redirect()
 
-
 @app.route('/login_callback')
 def login_callback():
-    handle_login_callback()
-    return redirect('/admin')
+    login_dest = handle_login_callback()
+    return redirect(login_dest)
 
 
 @app.route('/logout')
@@ -39,7 +37,7 @@ def logout():
 
 
 @app.route('/admin', methods=['GET', 'POST'])
-@requires_auth
+@requires_login('/admin')
 @requires_permission(conf.INVITE_PERMISSION)
 def admin():
     form = InviteForm()
