@@ -62,8 +62,14 @@ def handle_login_callback():
         'user_id': userinfo['sub'],
         'name': userinfo['name'],
     }
-    # TODO: change fallback to '/myaccount' once implemented
-    return session.get('login_dest', '/admin')
+
+    if 'login_dest' in session:
+        login_dest = session['login_dest']
+        del session['login_dest']
+    else:
+        # TODO: change fallback to '/myaccount' once implemented
+        login_dest = '/admin'
+    return login_dest
 
 
 def logout_redirect():
@@ -80,17 +86,15 @@ def logout_redirect():
     return redirect(f'https://{conf.AUTH0_DOMAIN}/v2/logout?{params}')
 
 
-def requires_login(route):
+def requires_login(func):
     """If user is not logged in, initiate authentication flow"""
-    def decorator(func):
-        @wraps(func)
-        def decorated(*args, **kwargs):
-            if 'profile' not in session:
-                session['login_dest'] = route
-                return redirect('/login')
-            return func(*args, **kwargs)
-        return decorated
-    return decorator
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        if 'profile' not in session:
+            session['login_dest'] = request.path
+            return redirect('/login')
+        return func(*args, **kwargs)
+    return decorated
 
 
 def requires_permission(required_permission: str):

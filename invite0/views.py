@@ -37,7 +37,7 @@ def logout():
 
 
 @app.route('/admin', methods=['GET', 'POST'])
-@requires_login('/admin')
+@requires_login
 @requires_permission(conf.INVITE_PERMISSION)
 def admin():
     form = InviteForm()
@@ -86,7 +86,6 @@ def signup(token):
 
         flash('Account created!')
         app.logger.info(f'Created account for {email_address}')
-        # TODO: redirect somewhere nice -- SSO dashboard extension?
 
     return render_template(
         'signup.html',
