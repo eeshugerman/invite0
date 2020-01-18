@@ -10,7 +10,6 @@ from invite0.auth0.exceptions import (
 )
 
 
-# TODO: share client with session.py?
 _management_api_client = Auth0ManagementAPIClient(
     domain=conf.AUTH0_DOMAIN,
     client_id=conf.AUTH0_CLIENT_ID,

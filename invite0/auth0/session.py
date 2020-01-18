@@ -26,6 +26,58 @@ _oauth_client = OAuth(app).register(
     client_kwargs={'scope': 'openid profile email'},
 )
 
+class UserNotLoggedIn(Exception):
+    pass
+
+
+class _CurrentUser:
+    user_id_cookie = 'user_id'
+
+    @property
+    def user_id(self):
+        if self.is_logged_in:
+            return session[self.user_id_cookie]
+        else:
+            raise UserNotLoggedIn
+
+    @property
+    def is_logged_in(self):
+        return self.user_id_cookie in session
+
+    def log_in(self, user_id: str):
+        session[self.user_id_cookie] = user_id
+
+    @staticmethod
+    def log_out():
+        session.clear()
+
+    @property
+    def permissions(self) -> List[str]:
+        """Get permissions for current user"""
+        page_count = 0
+        permissions = []
+        while True:
+            page = _management_api_client.get(
+                f'/users/{self.user_id}/permissions',
+                params={'page': page_count, 'include_totals': 'true'}
+            ).json()
+            permissions.extend(
+                permission['permission_name']
+                for permission in page['permissions']
+            )
+            if len(permissions) == page['total']:
+                break
+            page_count += 1
+        return permissions
+
+    @property
+    def profile(self) -> Dict:
+        # TODO: cache this?
+        self.profile = _management_api_client.get(f'/users/{self.user_id}').json()
+
+
+current_user = _CurrentUser()
+
 
 def login_redirect():
     """
@@ -58,10 +110,8 @@ def handle_login_callback():
     """
     _oauth_client.authorize_access_token()
     userinfo = _oauth_client.get('userinfo').json()
-    session['profile'] = {
-        'user_id': userinfo['sub'],
-        'name': userinfo['name'],
-    }
+    user_id = userinfo['sub']
+    current_user.log_in(user_id)
 
     if 'login_dest' in session:
         login_dest = session['login_dest']
@@ -78,7 +128,7 @@ def logout_redirect():
 
     User is redirected to Auth0 to log out and then sent back to our /login page
     """
-    session.clear()
+    current_user.log_out()
     params = urlencode({
         'returnTo': url_for('login', _external=True),
         'client_id': conf.AUTH0_CLIENT_ID
@@ -90,7 +140,7 @@ def requires_login(func):
     """If user is not logged in, initiate authentication flow"""
     @wraps(func)
     def decorated(*args, **kwargs):
-        if 'profile' not in session:
+        if not current_user.is_logged_in:
             session['login_dest'] = request.path
             return redirect('/login')
         return func(*args, **kwargs)
@@ -99,30 +149,10 @@ def requires_login(func):
 
 def requires_permission(required_permission: str):
     """If user does not have `required_permission`, return an error message"""
-
-    def get_user_permissions() -> List[str]:
-        """Get permissions for current user"""
-        user_id = session['profile']['user_id']
-        page_count = 0
-        permissions = []
-        while True:
-            page = _management_api_client.get(
-                f'/users/{user_id}/permissions',
-                params={'page': page_count, 'include_totals': 'true'}
-            ).json()
-            permissions.extend(
-                permission['permission_name']
-                for permission in page['permissions']
-            )
-            if len(permissions) == page['total']:
-                break
-            page_count += 1
-        return permissions
-
     def decorator(func):
         @wraps(func)
         def decorated(*args, **kwargs):
-            if required_permission in get_user_permissions():
+            if required_permission in current_user.permissions:
                 return func(*args, **kwargs)
             app.logger.warning(f'A user lacking the `{required_permission}` permission '
                                f'tried to access {request.path}')
