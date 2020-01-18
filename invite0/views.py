@@ -7,13 +7,11 @@ import invite0.config as conf
 from invite0.forms import SignUpForm, InviteForm
 from invite0.mail import send_invite
 from invite0.tokens import generate_token, read_token
-from invite0.auth0.users import user_exists, create_user
+from invite0.auth0.admin import user_exists, create_user
 from invite0.auth0.session import (
-    login_redirect,
-    handle_login_callback,
-    logout_redirect,
-    requires_login,
-    requires_permission
+    current_user,
+    login_redirect, handle_login_callback, logout_redirect,
+    requires_login, requires_permission,
 )
 from invite0.auth0.exceptions import (
     PasswordStrengthError,
@@ -25,15 +23,22 @@ from invite0.auth0.exceptions import (
 def login():
     return login_redirect()
 
+
 @app.route('/login_callback')
 def login_callback():
-    login_dest = handle_login_callback()
+    login_dest = handle_login_callback() or '/my-account'
     return redirect(login_dest)
 
 
 @app.route('/logout')
 def logout():
     return logout_redirect()
+
+
+@app.route('/my-account')
+@requires_login
+def my_account():
+    return render_template('my-account.html', user=current_user.profile)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -44,7 +49,6 @@ def admin():
     if form.validate_on_submit():
         email_address = form.email.data
         if user_exists(email_address):
-            # TODO: link for password reset?
             flash('An account already exists for this email address.')
         else:
             token = generate_token(email_address)
@@ -86,6 +90,8 @@ def signup(token):
 
         flash('Account created!')
         app.logger.info(f'Created account for {email_address}')
+
+        return redirect('/my-account')
 
     return render_template(
         'signup.html',

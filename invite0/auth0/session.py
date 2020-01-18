@@ -1,6 +1,8 @@
 from functools import wraps
 from urllib.parse import urlencode
-from typing import List
+from typing import List, Dict
+
+from requests.exceptions import HTTPError
 
 from flask import session, redirect, url_for, request, render_template
 from flask import current_app as app
@@ -8,7 +10,12 @@ from authlib.integrations.flask_client import OAuth
 
 import invite0.config as conf
 from invite0.auth0._client import Auth0ManagementAPIClient
-
+from invite0.auth0.exceptions import (
+    PasswordStrengthError,
+    UserAlreadyExistsError,
+    PasswordNoUserInfoError,
+    UserNotLoggedIn,
+)
 
 _management_api_client = Auth0ManagementAPIClient(
     domain=conf.AUTH0_DOMAIN,
@@ -25,9 +32,6 @@ _oauth_client = OAuth(app).register(
     authorize_url=f'https://{conf.AUTH0_DOMAIN}/authorize',
     client_kwargs={'scope': 'openid profile email'},
 )
-
-class UserNotLoggedIn(Exception):
-    pass
 
 
 class _CurrentUser:
@@ -73,7 +77,7 @@ class _CurrentUser:
     @property
     def profile(self) -> Dict:
         # TODO: cache this?
-        self.profile = _management_api_client.get(f'/users/{self.user_id}').json()
+        return _management_api_client.get(f'/users/{self.user_id}').json()
 
 
 current_user = _CurrentUser()
@@ -117,8 +121,7 @@ def handle_login_callback():
         login_dest = session['login_dest']
         del session['login_dest']
     else:
-        # TODO: change fallback to '/myaccount' once implemented
-        login_dest = '/admin'
+        login_dest = None
     return login_dest
 
 

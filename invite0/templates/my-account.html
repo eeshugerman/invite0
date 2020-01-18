@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block header %}
+<a class="btn" href="/logout">Logout</a>
+{% endblock %}
+
+{% block content %}
+<h3>Picture</h3>
+<img src="{{ user.picture }}">
+
+<h3>Email</h3>
+{{ user.email }}
+
+<h3>Username</h3>
+{{ user.username }}
+
+<h3>First Name</h3>
+{{ user.given_name }}
+
+<h3>Last Name</h3>
+{{ user.family_name }}
+
+{% endblock %}

@@ -8,3 +8,7 @@ class UserAlreadyExistsError(Exception):
 
 class PasswordNoUserInfoError(Exception):
     pass
+
+
+class UserNotLoggedIn(Exception):
+    pass

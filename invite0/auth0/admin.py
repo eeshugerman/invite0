@@ -1,21 +1,21 @@
-from requests.exceptions import HTTPError
 from flask import current_app as app
 
-from invite0 import config as conf
+from requests.exceptions import HTTPError
+
+import invite0.config as conf
 from invite0.auth0._client import Auth0ManagementAPIClient
 from invite0.auth0.exceptions import (
     PasswordStrengthError,
-    PasswordNoUserInfoError,
     UserAlreadyExistsError,
+    PasswordNoUserInfoError,
+    UserNotLoggedIn,
 )
-
 
 _management_api_client = Auth0ManagementAPIClient(
     domain=conf.AUTH0_DOMAIN,
     client_id=conf.AUTH0_CLIENT_ID,
     client_secret=conf.AUTH0_CLIENT_SECRET,
 )
-
 
 def user_exists(email_address: str) -> bool:
     """Check if a user exists"""
