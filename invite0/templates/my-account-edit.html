@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.picture.label }}<br>
+        {{ form.picture(size=32) }}<br>
+        {% for error in form.picture.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </div>
+    <div>
+        {{ form.nickname.label }}<br>
+        {{ form.nickname(size=32) }}<br>
+        {% for error in form.nickname.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </div>
+    <div>
+        {{ form.given_name.label }}<br>
+        {{ form.given_name(size=32) }}<br>
+        {% for error in form.given_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </div>
+    <div>
+        {{ form.family_name.label }}<br>
+        {{ form.family_name(size=32) }}<br>
+        {% for error in form.family_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </div>
+    <div>
+    {{ form.submit() }}
+    </div>
+    <div>
+    <form action="{{ url_for('my_account') }}">
+        <button>Cancel</button>
+    </form>
+    </div>
+
+</form>
+{% endblock %}

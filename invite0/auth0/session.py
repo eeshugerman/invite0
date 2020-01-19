@@ -55,6 +55,13 @@ class _CurrentUser:
         del session[self.id_cookie]
 
     @property
+    def profile(self) -> Dict:
+        return _management_api_client.get(f'/users/{self.user_id}').json()
+
+    def update_profile(self, data):
+        _management_api_client.patch(f'/users/{self.user_id}', data=data)
+
+    @property
     def permissions(self) -> List[str]:
         """Get permissions for current user"""
         page_count = 0
@@ -73,11 +80,6 @@ class _CurrentUser:
             page_count += 1
         return permissions
 
-    @property
-    def profile(self) -> Dict:
-        # TODO: cache this?
-        return _management_api_client.get(f'/users/{self.user_id}').json()
-
 
 current_user = _CurrentUser()
 
@@ -90,9 +92,10 @@ def login_redirect():
     our /login_callback with an authorization code.
 
     See:
+      - https://github.com/auth0-samples/auth0-python-web-app/blob/master/01-Login/server.py
+      - https://docs.authlib.org/en/latest/client/flask.html#routes-for-authorization
       - https://auth0.com/docs/flows/concepts/auth-code
       - https://auth0.com/docs/flows/guides/auth-code/call-api-auth-code
-      - https://github.com/auth0-samples/auth0-python-web-app/blob/master/01-Login/server.py
 
     """
     return _oauth_client.authorize_redirect(

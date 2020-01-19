@@ -54,3 +54,6 @@ class Auth0ManagementAPIClient:
 
     def post(self, endpoint, **kwargs):
         return self._request('POST', endpoint, **kwargs)
+
+    def patch(self, endpoint, **kwargs):
+        return self._request('PATCH', endpoint, **kwargs)
