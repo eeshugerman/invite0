@@ -35,25 +35,24 @@ _oauth_client = OAuth(app).register(
 
 
 class _CurrentUser:
-    user_id_cookie = 'user_id'
+    id_cookie = 'user_id'
 
     @property
     def user_id(self):
         if self.is_logged_in:
-            return session[self.user_id_cookie]
+            return session[self.id_cookie]
         else:
             raise UserNotLoggedIn
 
     @property
     def is_logged_in(self):
-        return self.user_id_cookie in session
+        return self.id_cookie in session
 
     def log_in(self, user_id: str):
-        session[self.user_id_cookie] = user_id
+        session[self.id_cookie] = user_id
 
-    @staticmethod
-    def log_out():
-        session.clear()
+    def log_out(self):
+        del session[self.id_cookie]
 
     @property
     def permissions(self) -> List[str]:
