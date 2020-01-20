@@ -1,11 +1,14 @@
 from environs import Env
 
+from invite0 import data
+
 
 env = Env()
 env.read_env()
 
 SERVER_NAME = env.str('INVITE0_DOMAIN')
 SECRET_KEY = env.str('SECRET_KEY')
+USER_FIELDS = env.list('USER_FIELDS', default=['picture', 'nickname', 'given_name', 'family_name'])
 
 ORG_NAME = env.str('ORG_NAME')
 INVITE_EXPIRATION_DAYS = env.decimal('INVITE_EXPIRATION_DAYS', default=5)
@@ -25,3 +28,18 @@ AUTH0_CLIENT_ID = env.str('AUTH0_CLIENT_ID')
 AUTH0_CLIENT_SECRET = env.str('AUTH0_CLIENT_SECRET')
 AUTH0_AUDIENCE = env.str('AUTH0_AUDIENCE')
 AUTH0_DOMAIN = env.str('AUTH0_DOMAIN')
+
+
+# validations
+# --------------------------------------------------------------------------------------------------
+
+class ConfigError(Exception):
+    def __init__(self, config_key, message):
+        super().__init__(message)
+        self.config_key = config_key
+
+for field in USER_FIELDS:
+    if field not in data.ALL_USER_FIELDS:
+        raise ConfigError('USER_FIELDS', f'Unknown field: "{field}".')
+
+    

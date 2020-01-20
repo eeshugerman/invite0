@@ -5,27 +5,22 @@
 {% endblock %}
 
 {% block content %}
-<h3>Picture</h3>
-<img src="{{ user.picture }}" height="100" width="100">
 
+{# picture at top or else it looks weird #}
+{% if 'picture' in config.USER_FIELDS %}
+<img src="{{ profile.picture }}" height="100" width="100">
+{% endif %}
+
+{# always show email #}
 <h3>Email</h3>
-{{ user.email }}
+{{ profile.email }}
 
-<h3>Nickname</h3>
-{{ user.nickname }}
-
-<h3>First Name</h3>
-{{ user.given_name }}
-
-<h3>Last Name</h3>
-{{ user.family_name }}
+{% for field in config.USER_FIELDS | reject('==', 'picture') %}
+<h3>{{ labels[field] }}</h3>
+{{ profile[field] }}
+{% endfor %}
 
 <form action="{{ url_for('my_account_edit') }}">
     <input type="submit" value="Edit" />
 </form>
 {% endblock %}
-
-<!-- TODO:
-   - password reset
-   - my apps -->
-

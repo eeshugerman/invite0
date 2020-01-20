@@ -4,6 +4,7 @@ from flask import redirect, render_template, flash, url_for
 from itsdangerous import SignatureExpired, BadSignature
 
 import invite0.config as conf
+from invite0 import data
 from invite0.forms import SignUpForm, InviteForm, ProfileForm
 from invite0.mail import send_invite
 from invite0.tokens import generate_token, read_token
@@ -38,16 +39,22 @@ def logout():
 @app.route('/my-account')
 @requires_login
 def my_account():
-    return render_template('my-account.html', user=current_user.profile)
+    labels = {
+        field: attrs['label']
+        for field, attrs in data.ALL_USER_FIELDS.items()
+    }
+    return render_template(
+        'my-account.html',
+        profile=current_user.profile,
+        labels=labels
+    )
 
 @app.route('/my-account/edit', methods=['GET', 'POST'])
 @requires_login
 def my_account_edit():
     form = ProfileForm(data=current_user.profile)
     if form.validate_on_submit():
-        profile = form.data.copy()
-        profile.pop('submit')
-        profile.pop('csrf_token')
+        profile = {field: form.data[field] for field in conf.USER_FIELDS}
         current_user.update_profile(profile)
         return redirect('/my-account')
     return render_template('my-account-edit.html', form=form)
