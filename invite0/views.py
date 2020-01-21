@@ -63,7 +63,9 @@ def my_account_edit():
 @requires_login
 def password_reset():
     current_user.send_password_reset_email()
-    return render_template('my-account.html')
+    email_address = current_user.profile['email']
+    flash(f'Password reset link sent to {email_address}.')
+    return redirect('/my-account')
 
 
 @app.route('/admin', methods=['GET', 'POST'])

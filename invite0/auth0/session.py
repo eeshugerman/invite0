@@ -2,6 +2,7 @@ from functools import wraps
 from urllib.parse import urlencode
 from typing import List, Dict
 
+import requests
 from requests.exceptions import HTTPError
 
 from flask import session, redirect, url_for, request, render_template
@@ -63,7 +64,6 @@ class _CurrentUser:
 
     @property
     def permissions(self) -> List[str]:
-        """Get permissions for current user"""
         page_count = 0
         permissions = []
         while True:
@@ -79,6 +79,15 @@ class _CurrentUser:
                 break
             page_count += 1
         return permissions
+
+    def send_password_reset_email(self):
+        requests.post(
+            f'https://{conf.AUTH0_DOMAIN}/dbconnections/change_password',
+            data={
+                'email': self.profile['email'],
+                'connection': 'Username-Password-Authentication'
+            }
+        )
 
 
 current_user = _CurrentUser()
