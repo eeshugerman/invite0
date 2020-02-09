@@ -7,12 +7,12 @@ env = Env()
 env.read_env()
 
 SERVER_NAME = env.str('INVITE0_DOMAIN')
-SECRET_KEY = env.str('SECRET_KEY')
-USER_FIELDS = env.list('USER_FIELDS', default=['picture', 'nickname', 'given_name', 'family_name'])
-
 ORG_NAME = env.str('ORG_NAME')
+USER_FIELDS = env.list('USER_FIELDS', default=['picture', 'nickname', 'given_name', 'family_name'])
 INVITE_EXPIRATION_DAYS = env.decimal('INVITE_EXPIRATION_DAYS', default=5)
 INVITE_PERMISSION = env.str('INVITE_PERMISSION', default='send:invitation')
+WELCOME_URL = env.url('WELCOME_URL', default=None).geturl()
+SECRET_KEY = env.str('SECRET_KEY')
 
 MAIL_SERVER = env.str('MAIL_SERVER')
 MAIL_PORT = env.str('MAIL_PORT')

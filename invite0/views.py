@@ -20,6 +20,7 @@ from invite0.auth0.exceptions import (
     UserAlreadyExistsError,
 )
 
+
 @app.route('/login')
 def login():
     return login_redirect()
@@ -49,6 +50,7 @@ def my_account():
         labels=labels
     )
 
+
 @app.route('/my-account/edit', methods=['GET', 'POST'])
 @requires_login
 def my_account_edit():
@@ -58,6 +60,7 @@ def my_account_edit():
         current_user.update_profile(profile)
         return redirect('/my-account')
     return render_template('my-account-edit.html', form=form)
+
 
 @app.route('/password-reset')
 @requires_login
@@ -118,7 +121,10 @@ def signup(token):
         flash('Account created!')
         app.logger.info(f'Created account for {email_address}')
 
-        return redirect('/my-account')
+        if conf.WELCOME_URL:
+            return redirect(conf.WELCOME_URL)
+        else:
+            return redirect('/my-account')
 
     return render_template(
         'signup.html',
