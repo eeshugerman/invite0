@@ -28,8 +28,8 @@ def login():
 
 @app.route('/login_callback')
 def login_callback():
-    login_dest = handle_login_callback() or '/my-account'
-    return redirect(login_dest)
+    login_destination = handle_login_callback() or '/my-account'
+    return redirect(login_destination)
 
 
 @app.route('/logout')

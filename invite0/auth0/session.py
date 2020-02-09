@@ -127,13 +127,7 @@ def handle_login_callback():
     userinfo = _oauth_client.get('userinfo').json()
     user_id = userinfo['sub']
     current_user.log_in(user_id)
-
-    if 'login_dest' in session:
-        login_dest = session['login_dest']
-        del session['login_dest']
-    else:
-        login_dest = None
-    return login_dest
+    return session.pop('login_destination', None)
 
 
 def logout_redirect():
@@ -155,7 +149,7 @@ def requires_login(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         if not current_user.is_logged_in:
-            session['login_dest'] = request.path
+            session['login_destination'] = request.path
             return redirect('/login')
         return func(*args, **kwargs)
     return decorated
