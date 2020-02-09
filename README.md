@@ -11,13 +11,15 @@ By default, your Auth0 tenant is open for signup to anyone on the web. This may 
 (1) poses glaring problems for security and scalability. (2) may be a fine option _if you're developing an application_ -- but what if you are simply integrating software that you do not develop? This is where Invite0 comes in to play.
 
 ## The solution
-Invite0 is two web pages:
+The core functionality of Invite0 boils down to two web pages:
 - `/admin`: From this page, Auth0 users with a certain permission can send invitations to email addresses.
-- `/signup/<token>`: This is where the recipients land when they click the invitation link. It's a basic form: password and password confirmation. (Support is planned for additional fields, eg `name` and `picture`.)
+- `/signup/<token>`: This is where the recipients land when they click the invitation link. It's a basic form: password and password confirmation.
 
 `token` is a JSON Web Token (JWT) which encodes the user's email address and the current time in a signed, url-safe string. When the admin clicks `Send`, the user's invite link, `https://<domain>/signup/<token>`, is emailed to them. When the user follows the link, the `/signup` endpoint checks the token. Since the token is signed, we can verify that it was encoded with our `SECRET_KEY` (or in other words, that it has not been tampered with). From the token, we decode the email address and creation time, and check that it has not expired per `INVITE_EXPIRATION_DAYS`. Finally, when the user submits the password form, their account is created in Auth0 with the Mangement API.
 
 This approach enables us to send single-use, temporary invite links, and verifies email address as part of the process, all without touching a database! Token encoding and decoding is handled by [`itsdangerous`](https://github.com/pallets/itsdangerous).
+
+There is also the `/my-account` page, where users can make changes to their account, such as setting a profile picture or changing their password.
 
 # Installation
 
