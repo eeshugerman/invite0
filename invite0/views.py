@@ -1,12 +1,16 @@
+import time
+from threading import Thread
+
 from flask import current_app as app
 from flask import redirect, render_template, flash, url_for
 
 from itsdangerous import SignatureExpired, BadSignature
+from email_validator import validate_email, EmailNotValidError
+
 
 import invite0.config as conf
 from invite0 import data
-from invite0.forms import SignUpForm, InviteForm, ProfileForm
-from invite0.mail import send_invite
+from invite0.forms import SignUpForm, InviteForm, BulkInviteForm, ProfileForm
 from invite0.tokens import generate_token, read_token
 from invite0.auth0.admin import user_exists, create_user
 from invite0.auth0.session import (
@@ -18,6 +22,12 @@ from invite0.auth0.exceptions import (
     PasswordStrengthError,
     PasswordNoUserInfoError,
     UserAlreadyExistsError,
+)
+from invite0.mail import (
+    send_invite,
+    send_invite_bulk,
+    notify_bulk_invite_success,
+    notify_bulk_invite_failure
 )
 
 
@@ -71,13 +81,64 @@ def password_reset():
     return redirect('/my-account')
 
 
+def _check_bulk_addresses(email_addresses):
+    """
+    Validate multiple email addresses (helper for /admin)
+
+    :return: first invalid email address or None if all are valid
+    """
+    for email_address in email_addresses:
+        try:
+            # mimic wtforms.validators.Email
+            # https://github.com/wtforms/wtforms/blob/master/src/wtforms/validators.py#L384-L389
+            validate_email(
+                email_address,
+                check_deliverability=False,
+                allow_smtputf8=True,
+                allow_empty_local=False,
+            )
+        except EmailNotValidError:
+            return email_address
+    return None
+
+
+def _do_bulk_invite(email_addresses, inviter_email, app_obj):
+    """ Send invites to multiple email addresses (helper for /admin) """
+    with app_obj.app_context():
+        try:
+            skipped_cnt = 0
+            recipients = []
+            for email_address in email_addresses:
+                if user_exists(email_address):
+                    skipped_cnt += 1
+                else:
+                    recipients.append(email_address)
+                # Auth0 free tier rate limits the Management API to 2 requests/second.
+                # This avoids that with some wiggle room.
+                time.sleep(1)  # seconds
+
+            tasks = []
+            for email_address in recipients:
+                token = generate_token(email_address)
+                link = url_for('signup', token=token, _external=True)
+                tasks.append((email_address, link))
+            send_invite_bulk(tasks)
+        except:
+            app.logger.exception('Error during bulk invite operation')
+            notify_bulk_invite_failure(inviter_email)
+        else:
+            notify_bulk_invite_success(inviter_email, len(recipients), skipped_cnt)
+            app.logger.info('Bulk invite job completed successfully')
+
+
 @app.route('/admin', methods=['GET', 'POST'])
 @requires_login
 @requires_permission(conf.INVITE_PERMISSION)
 def admin():
-    form = InviteForm()
-    if form.validate_on_submit():
-        email_address = form.email.data
+
+    single_form = InviteForm()
+    if single_form.submit_single.data and single_form.validate_on_submit():
+        email_address = single_form.email.data
         if user_exists(email_address):
             flash('An account already exists for this email address.')
         else:
@@ -85,9 +146,25 @@ def admin():
             link = url_for('signup', token=token, _external=True)
             send_invite(email_address, link)
             flash(f'Invitation sent to {email_address}!')
-            app.logger.info(f'invitation sent to {email_address}')
 
-    return render_template('admin.html', form=form)
+    bulk_form = BulkInviteForm()
+    if bulk_form.submit_bulk.data and bulk_form.validate_on_submit():
+        email_addresses = bulk_form.emails.data.replace(',', ' ').split()
+        bad_address = _check_bulk_addresses(email_addresses)
+        if bad_address is None:
+            thread = Thread(target=_do_bulk_invite, args=[
+                email_addresses,
+                current_user.profile['email'], 
+                app._get_current_object()
+            ])
+            thread.start()
+            flash('Bulk invite job initiated. You will recieve an email at '
+                 f'{current_user.profile["email"]} when it is complete.')
+        else:
+            flash(f'{bad_address} is not a valid email address. '
+                   'Please correct or remove this value and try again.')
+
+    return render_template('admin.html', single_form=single_form, bulk_form=bulk_form)
 
 
 @app.route('/signup/<token>', methods=['GET', 'POST'])

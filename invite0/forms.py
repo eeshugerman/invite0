@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import Email, DataRequired, EqualTo, URL
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField
+from wtforms.validators import Email, DataRequired, EqualTo
 
 from invite0 import data
 import invite0.config as conf
@@ -17,9 +17,13 @@ class SignUpForm(FlaskForm):
 
 
 class InviteForm(FlaskForm):
-    email = StringField('Email', validators=[Email(), DataRequired()])
-    submit = SubmitField('Send invititation')
+    email = StringField('Email Address', validators=[Email(), DataRequired()])
+    submit_single = SubmitField('Send invititation')
 
+
+class BulkInviteForm(FlaskForm):
+    emails = TextAreaField('Email Addresses', validators=[DataRequired()])
+    submit_bulk = SubmitField('Send invititations')
 
 
 # generate ProfileForm dynamically based on config.USER_FIELDS

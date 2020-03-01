@@ -4,6 +4,7 @@ flask==1.1.*
 flask-wtf==0.14.*
 flask-mail==0.9.*
 
+email_validator==1.0.5
 authlib==0.13
 itsdangerous==1.1.*
 environs==6.1.*
