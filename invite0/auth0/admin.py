@@ -8,7 +8,6 @@ from invite0.auth0.exceptions import (
     PasswordStrengthError,
     UserAlreadyExistsError,
     PasswordNoUserInfoError,
-    UserNotLoggedIn,
 )
 
 _management_api_client = Auth0ManagementAPIClient(

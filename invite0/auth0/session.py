@@ -3,7 +3,6 @@ from urllib.parse import urlencode
 from typing import List, Dict
 
 import requests
-from requests.exceptions import HTTPError
 
 from flask import session, redirect, url_for, request, render_template
 from flask import current_app as app
@@ -11,12 +10,7 @@ from authlib.integrations.flask_client import OAuth
 
 import invite0.config as conf
 from invite0.auth0._client import Auth0ManagementAPIClient
-from invite0.auth0.exceptions import (
-    PasswordStrengthError,
-    UserAlreadyExistsError,
-    PasswordNoUserInfoError,
-    UserNotLoggedIn,
-)
+from invite0.auth0.exceptions import UserNotLoggedIn
 
 _management_api_client = Auth0ManagementAPIClient(
     domain=conf.AUTH0_DOMAIN,
