@@ -1,22 +1,60 @@
-<html>
-  <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  </head>
-  <body>
-    <header>
-      {% block header %}{% endblock %}
-    </header>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <hr>
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    <hr>
-    {% endif %}
+<html class="has-navbar-fixed-top">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <title>{{ config.ORG_NAME }}</title>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    </head>
+    <body>
+        <a class="skip-main is-sr-only" href="#main-content">Skip to main content</a>
+        <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item">
+                    {% if config.ORG_LOGO %}
+                    <img src="{{ config.ORG_LOGO }}" height="25" id="logo" alt="{{ config.ORG_NAME }} logo">
+                    {% endif %}
+                    <strong>{{ config.ORG_NAME }}</strong>
+                </a>
+                <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <div class="navbar-menu" id="navMenu">
+                <div class="navbar-end">
+                    {% if show_logout_button or True %}
+                    <div class="navbar-item" >
+                        <a class="button is-link is-outlined" href="/logout">Logout</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        <div class="columns is-centered">
+            <div class="column is-fullscreen-mobile is-6-tablet is-5-desktop is-3-widescreen">
+                <main id="main-content">
+                    {% block content %}{% endblock %}
+                </main>
+            </div>
+        </div>
+    </body>
+    <footer id="notification-tray">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="notification {{ category }}">
+            <button class="delete"></button>
+            {{ message }}
+        </div>
+    {% endfor %}
     {% endwith %}
-    {% block content %}{% endblock %}
-  </body>
+    </footer>
 </html>

@@ -1,25 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="post">
-    {{ form.hidden_tag() }}
-    {% for field in config.USER_FIELDS %}
-    <div>
-        {# TODO: required fields? #}
-        {{ form[field].label }}<br>
-        {{ form[field](size=32) }}<br>
-        {% for error in form[field].errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </div>
-    {% endfor %}
-    <div>
-        {{ form.submit() }}
-    </div>
-    <div>
-        <form action="{{ url_for('my_account') }}">
-            <button>Cancel</button>
-        </form>
-    </div>
-
-</form>
+<div class="card">
+    <form method="post">
+        <div class="card-content">
+            {{ form.hidden_tag() }}
+            {% for field in config.USER_FIELDS %}
+            <div class="field">
+                <label class="label">{{ form[field].label }}</label>
+                {{ form[field](class_="input", type="text") }}
+                {% for error in form[field].errors %}
+                <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <footer class="card-footer">
+            {{ form.submit(class_="button is-link") }}
+            <a class="button is-link mx-1" href="{{ url_for('my_account') }}">Cancel</a>
+        </footer>
+    </form>
+</div>
 {% endblock %}

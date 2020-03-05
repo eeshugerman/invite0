@@ -1,1 +1,35 @@
-// TODO
+img#logo {
+    margin-right: 10px;
+}
+
+@media screen and (min-width: 769px) {main {
+    padding-top: 25%;
+}}
+
+.card-footer {
+	  padding: 1rem;
+}
+
+#notification-tray {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+#notification-tray > * {
+    margin: 1rem;
+}
+
+form {
+    margin: 0px;
+}
+
+.my-1 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.mx-1 {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}

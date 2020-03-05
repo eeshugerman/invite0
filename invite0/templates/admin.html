@@ -1,35 +1,41 @@
 {% extends "base.html" %}
 
-{% block header %}
-<a class="btn" href="/logout">Logout</a>
-{% endblock %}
-
 {% block content %}
-<form method="post">
-  {{ single_form.hidden_tag() }}
-  <h1>Invite a new user to {{ config.ORG_NAME }}</h1>
-  <div>
-    {{ single_form.email.label }}<br>
-    {{ single_form.email() }}<br>
-    {% for error in single_form.email.errors %}
-    <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-  </div>
-  <br>
-  {{ single_form.submit_single() }}
-</form>
+<div class="card my-1">
+    <form method="post">
+        {{ single_form.hidden_tag() }}
+        <div class="card-content">
+            <p class="title">Invite a new user</p>
+            <label class="label" id="email-label">{{ single_form.email.label }}</label>
+            <div class="control">
+                {{ single_form.email(class_="input", type="text", **{"aria-labelledby": "email-label"}) }}
+                {% for error in single_form.email.errors %}
+                <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        <footer class="card-footer">
+            {{ single_form.submit_single(class_="button is-link") }}
+        </footer>
+    </form>
+</div>
+<div class="card my-1">
+    <form method="post">
+        <div class="card-content">
+            {{ bulk_form.hidden_tag() }}
+            <p class="title">Invite new users in bulk</p>
+            <label class="label" id="bulk-emails-label">{{ bulk_form.emails.label }}</label>
+            <div class="control">
+                {{ bulk_form.emails(class_="textarea", type="text", **{"aria-labelledby": "bulk-emails-label"}) }}
+                {% for error in bulk_form.emails.errors %}
+                <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        <footer class="card-footer">
+            {{ bulk_form.submit_bulk(class_="button is-link") }}
+        </footer>
+    </form>
+</div>
 
-<form method="post">
-  {{ bulk_form.hidden_tag() }}
-  <h1>Invite new users to {{ config.ORG_NAME }} in bulk</h1>
-  <div>
-    {{ bulk_form.emails.label }}<br>
-    {{ bulk_form.emails() }}<br>
-    {% for error in bulk_form.emails.errors %}
-    <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-  </div>
-  <br>
-  {{ bulk_form.submit_bulk() }}
-</form>
 {% endblock %}

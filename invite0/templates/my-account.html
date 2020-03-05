@@ -1,32 +1,33 @@
 {% extends "base.html" %}
 
-{% block header %}
-<a class="btn" href="/logout">Logout</a>
-{% endblock %}
-
 {% block content %}
+<div class="card">
+    {% if 'picture' in config.USER_FIELDS %}
+    <div class="card-image">
+        <img src="{{ profile.picture }}" >
+    </div>
+    {% endif %}
+    <div class="card-content">
+        <table class="table is-fullwidth">
+            {# always show email #}
+            <tr>
+                <td>Email</td>
+                <td>{{ profile.email }}</td>
+            </tr>
 
-{# picture at top or else it looks weird #}
-{% if 'picture' in config.USER_FIELDS %}
-<img src="{{ profile.picture }}" height="100" width="100">
-{% endif %}
-
-{# always show email #}
-<h3>Email</h3>
-{{ profile.email }}
-
-{% for field in config.USER_FIELDS | reject('==', 'picture') %}
-<h3>{{ labels[field] }}</h3>
-{{ profile[field] }}
-{% endfor %}
-
-<form action="{{ url_for('my_account_edit') }}">
-    <input type="submit" value="Edit" />
-</form>
-
-<form action="{{ url_for('password_reset') }}">
-    <input type="submit" value="Change Password" />
-</form>
+            {% for field in config.USER_FIELDS | reject('==', 'picture') %}
+            <tr>
+            <td>{{ labels[field] }}</td>
+            <td>{{ profile[field] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <footer class="card-footer">
+        <a class="button is-link" href="{{ url_for('my_account_edit') }}">Edit</a>
+        <a class="button is-link mx-1" href="{{ url_for('password_reset') }}">Change password</a>
+    </footer>
+</div>
 {% endblock %}
 
 

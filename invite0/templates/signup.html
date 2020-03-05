@@ -1,35 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Hi {{ email_address }}!</h1>
-<h3>Welcome to {{ config.ORG_NAME }}! Let's get you signed up.</h3>
-<form method="post">
+<div class="card">
+    <form method="post">
     {{ form.hidden_tag() }}
-    <div>
-        {{ form.password.label }}<br>
-        {{ form.password(size=32) }}<br>
-        {% for error in form.password.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </div>
-    <div>
-        {{ form.confirm_password.label }}<br>
-        {{ form.confirm_password(size=32) }}<br>
-        {% for error in form.password.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </div>
-    <br>
-    <div>
-        Password requirements:
-        <ul>
-            <li>eight or more characters</li>
-            <li>one or more lowercase letters [a-z]</li>
-            <li>one or more uppercase letters [A-Z]</li>
-            <li>one or more numbers [0-9]</li>
-            <li>one or more special characters [!@#$%^&*]</li>
-        </ul>
-    </div>
-    {{ form.submit() }}
-</form>
+        <div class="card-content">
+            <p class="title">Welcome to {{ config.ORG_NAME }}! </p>
+            <p class="subtitle">Let's get you signed up.</p>
+            <div class="field">
+                <label class="label" id="password-label"> {{ form.password.label }}</label>
+                {{ form.password(class_="input", type="password", **{"aria-labelledby": "password-label"}) }}
+                {% for error in form.password.errors %}
+                <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div>
+                <label class="label" id="confirm-password-label">{{ form.confirm_password.label }}</label>
+                {{ form.confirm_password(class_="input", type="password", **{"aria-labelledby": "confirm-password-label"}) }}
+            </div>
+            <br>
+            <section class="content is-family-secondary">
+                <p>Requirements:</p>
+                <ul>
+                    <li>eight or more characters</li>
+                    <li>one or more lowercase letters</li>
+                    <li>one or more uppercase letters</li>
+                    <li>one or more numbers</li>
+                    <li>one or more special characters</li>
+                </ul>
+            </section>
+        </div>
+        <footer class="card-footer">
+            {{ form.submit(class_="button is-link") }}
+        </footer>
+    </form>
+</div>
 {% endblock %}

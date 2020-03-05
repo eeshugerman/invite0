@@ -58,6 +58,7 @@ class _CurrentUser:
 
     @property
     def permissions(self) -> List[str]:
+        # TODO: Use RBAC instead? I think I tried this but it didn't work?
         page_count = 0
         permissions = []
         while True:

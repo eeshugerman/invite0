@@ -57,13 +57,14 @@ def my_account():
     return render_template(
         'my-account.html',
         profile=current_user.profile,
-        labels=labels
+        labels=labels,
     )
 
 
 @app.route('/my-account/edit', methods=['GET', 'POST'])
 @requires_login
 def my_account_edit():
+    # TODO: handle 400's from Auth0 gracefully
     form = ProfileForm(data=current_user.profile)
     if form.validate_on_submit():
         profile = {field: form.data[field] for field in conf.USER_FIELDS}
@@ -77,7 +78,7 @@ def my_account_edit():
 def password_reset():
     current_user.send_password_reset_email()
     email_address = current_user.profile['email']
-    flash(f'Password reset link sent to {email_address}.')
+    flash(f'Password reset link sent to {email_address}.', 'is-info')
     return redirect('/my-account')
 
 
@@ -140,12 +141,12 @@ def admin():
     if single_form.submit_single.data and single_form.validate_on_submit():
         email_address = single_form.email.data
         if user_exists(email_address):
-            flash('An account already exists for this email address.')
+            flash('An account already exists for this email address.', 'is-danger')
         else:
             token = generate_token(email_address)
             link = url_for('signup', token=token, _external=True)
             send_invite(email_address, link)
-            flash(f'Invitation sent to {email_address}!')
+            flash(f'Invitation sent to {email_address}!', 'is-success')
 
     bulk_form = BulkInviteForm()
     if bulk_form.submit_bulk.data and bulk_form.validate_on_submit():
@@ -159,10 +160,10 @@ def admin():
             ])
             thread.start()
             flash('Bulk invite job initiated. You will recieve an email at '
-                 f'{current_user.profile["email"]} when it is complete.')
+                  f'{current_user.profile["email"]} when it is complete.', 'is-success')
         else:
             flash(f'{bad_address} is not a valid email address. '
-                   'Please correct or remove this value and try again.')
+                   'Please correct or remove this value and try again.', 'is-danger')
 
     return render_template('admin.html', single_form=single_form, bulk_form=bulk_form)
 
@@ -185,18 +186,18 @@ def signup(token):
         try:
             create_user(email_address, password=form.password.data)
         except PasswordStrengthError:
-            flash('Password too weak!')
+            flash('Password too weak!', 'is-danger')
         except PasswordNoUserInfoError:
-            flash('Password must not contain user information (eg email/username).')
+            flash('Password must not contain user information (eg email/username).', 'is-danger')
         except UserAlreadyExistsError:
-            flash('An account already exists for your email address.')
+            flash('An account already exists for your email address.', 'is-danger')
             # TODO: password reset link
         except Exception as e:
-            flash('An unknown error occured.')
             app.logger.error(f'Failed to create account for {email_address}:', exc_info=e)
+            flash('An unknown error occured.', 'is-danger')
 
-        flash('Account created!')
         app.logger.info(f'Created account for {email_address}')
+        flash('Account created!', 'is-success')
 
         if conf.WELCOME_URL:
             return redirect(conf.WELCOME_URL)
@@ -206,5 +207,5 @@ def signup(token):
     return render_template(
         'signup.html',
         form=form,
-        email_address=email_address,
+        show_logout_button=False,
     )
