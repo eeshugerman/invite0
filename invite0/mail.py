@@ -2,7 +2,6 @@ from flask import render_template, current_app as app
 from flask_mail import Mail, Message
 
 from invite0 import config as conf
-from invite0.auth0.session import current_user
 
 
 _mail = Mail(app)
@@ -38,6 +37,7 @@ def notify_bulk_invite_success(inviter_email, invites_cnt, skipped_cnt):
         html=f'invites sent: {invites_cnt}, skipped: {skipped_cnt}',
     )
     _mail.send(message)
+
 
 def notify_bulk_invite_failure(inviter_email):
     message = Message(

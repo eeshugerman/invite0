@@ -8,4 +8,4 @@ WORKDIR /
 
 EXPOSE 8000
 
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "invite0:app"]
+CMD ["gunicorn", "--bind=0.0.0.0:8000", "invite0:app"]

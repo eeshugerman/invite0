@@ -27,6 +27,7 @@
             <label class="label" id="bulk-emails-label">{{ bulk_form.emails.label }}</label>
             <div class="control">
                 {{ bulk_form.emails(class_="textarea", type="text", **{"aria-labelledby": "bulk-emails-label"}) }}
+                <p class="help">Addresses must be separated by commas and/or whitespace.</p>
                 {% for error in bulk_form.emails.errors %}
                 <p class="help is-danger">{{ error }}</p>
                 {% endfor %}
