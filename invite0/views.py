@@ -160,7 +160,7 @@ def admin():
         if bad_address is None:
             thread = Thread(target=_do_bulk_invite, args=[
                 email_addresses,
-                current_user.profile['email'], 
+                current_user.profile['email'],
                 app._get_current_object()
             ])
             thread.start()
@@ -176,7 +176,7 @@ def admin():
 @app.route('/signup/<token>', methods=['GET', 'POST'])
 def signup(token):
     def error_page(message):
-        return render_template('error.html', message=message)
+        return render_template('error.html', message=message, hide_logout_button=True)
     try:
         email_address = read_token(token)
     except SignatureExpired:
@@ -184,7 +184,7 @@ def signup(token):
         return error_page('This link has expired. Please request a new invitation link.')
     except BadSignature:
         app.logger.warning('Recieved invalid invitation token')
-        return error_page('invalid signup link')
+        return error_page("There's something wrong with this invitation link. Are you lost?")
 
     form = SignUpForm()
     if form.validate_on_submit():
@@ -212,5 +212,5 @@ def signup(token):
     return render_template(
         'signup.html',
         form=form,
-        show_logout_button=False,
+        hide_logout_button=False,
     )

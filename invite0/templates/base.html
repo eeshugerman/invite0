@@ -30,7 +30,7 @@
             </div>
             <div class="navbar-menu" id="navMenu">
                 <div class="navbar-end">
-                    {% if show_logout_button or True %}
+                    {% if not hide_logout_button %}
                     <div class="navbar-item" >
                         <a class="button is-link is-outlined" href="/logout">Logout</a>
                     </div>
