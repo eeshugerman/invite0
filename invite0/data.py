@@ -4,7 +4,7 @@ ALL_USER_FIELDS = {
     'phone_number': {'label': 'Phone Number', 'validators': []},
     'given_name':   {'label': 'First Name',   'validators': []},
     'family_name':  {'label': 'Last Name',    'validators': []},
-    'name':         {'label': 'Name',         'validators': []},
+    'name':         {'label': 'Display Name', 'validators': []},
     'nickname':     {'label': 'Nickname',     'validators': []},
     'picture':      {'label': 'Picture URL',  'validators': [URL()]},
     # username currently not supported because we need to handle the uniqueness requirement
