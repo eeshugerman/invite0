@@ -193,7 +193,6 @@ def signup(token):
             flash('An account already exists for your email address.', 'is-danger')
             # TODO: password reset link
         except Exception as e:
-            app.logger.error(f'Failed to create account for {email_address}:', exc_info=e)
             flash('An unknown error occured.', 'is-danger')
 
         app.logger.info(f'Created account for {email_address}')

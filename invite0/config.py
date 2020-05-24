@@ -39,8 +39,8 @@ AUTH0_DOMAIN = env.str('AUTH0_DOMAIN')
 
 class ConfigError(Exception):
     def __init__(self, config_key, message):
-        super().__init__(message)
         self.config_key = config_key
+        super().__init__(f'{config_key}: {message}')
 
 for field in USER_FIELDS:
     if field not in data.ALL_USER_FIELDS:

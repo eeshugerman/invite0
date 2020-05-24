@@ -18,11 +18,11 @@ _management_api_client = Auth0ManagementAPIClient(
 
 def user_exists(email_address: str) -> bool:
     """Check if a user exists"""
-    users = _management_api_client.get(
+    user = _management_api_client.get(
         '/users-by-email',
         params={'email': email_address}
     ).json()
-    return bool(users)
+    return bool(user)
 
 
 def create_user(email_address: str, password: str):
@@ -47,5 +47,5 @@ def create_user(email_address: str, password: str):
             raise UserAlreadyExistsError
         else:
             app.logger.error(f'Failed to create account for {email_address}.', exc_info=e)
-            raise e
+            raise e   # to be caught by caller
     app.logger.info(f'Created user {email_address}!')
