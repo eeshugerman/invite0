@@ -183,8 +183,9 @@ def signup(token):
 
     form = SignUpForm()
     if form.validate_on_submit():
+        extras = {field: getattr(form, field).data for field in conf.REQUIRED_USER_FIELDS}
         try:
-            create_user(email_address, password=form.password.data)
+            create_user(email_address, password=form.password.data, **extras)
         except PasswordStrengthError:
             flash('Password too weak!', 'is-danger')
         except PasswordNoUserInfoError:

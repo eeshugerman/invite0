@@ -7,6 +7,15 @@
         <div class="card-content">
             <p class="title">Welcome to {{ config.ORG_NAME }}! </p>
             <p class="subtitle">Let's get you signed up.</p>
+            {% for field in config.REQUIRED_USER_FIELDS %}
+            <div class="field">
+                <label class="label">{{ form[field].label }}</label>
+                {{ form[field](class_="input", type="text") }}
+                {% for error in form[field].errors %}
+                <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
             <div class="field">
                 <label class="label" id="password-label"> {{ form.password.label }}</label>
                 {{ form.password(class_="input", type="password", **{"aria-labelledby": "password-label"}) }}

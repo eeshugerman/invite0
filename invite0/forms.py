@@ -2,18 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import Email, DataRequired, EqualTo
 
-from invite0 import data
 import invite0.config as conf
-
-
-class SignUpForm(FlaskForm):
-    # TODO: add other fields?
-    password = PasswordField('Password', validators=[
-        DataRequired(),
-        EqualTo('confirm_password', 'Passwords must match')
-    ])
-    confirm_password = PasswordField('Confirm password', validators=[DataRequired()])
-    submit = SubmitField('Create account')
+from invite0 import data
 
 
 class InviteForm(FlaskForm):
@@ -26,14 +16,39 @@ class BulkInviteForm(FlaskForm):
     submit_bulk = SubmitField('Send invititations')
 
 
-# generate ProfileForm dynamically based on config.USER_FIELDS
-profile_form_fields = {}
-for field in conf.USER_FIELDS:
-    field_data = data.ALL_USER_FIELDS[field]
-    profile_form_fields[field] = StringField(
-        field_data['label'],
-        validators=field_data['validators']
-    )
-profile_form_fields['submit'] = SubmitField('Save changes')
+# generate ProfileForm and SignUpForm dynamically based on config.[REQUIRED_]USER_FIELDS
+# the use of functions is unnecessary, just doing so to impose some structure
+# TODO: could this be a good metaclass usecase?
+def _generic_user_fields(required_only=False):
+    form_fields = {}
+    for field in (conf.REQUIRED_USER_FIELDS if required_only else conf.USER_FIELDS):
+        field_data = data.ALL_USER_FIELDS[field]
+        validators = field_data['validators']
+        if field in conf.REQUIRED_USER_FIELDS:
+            validators.append(DataRequired())
+        form_fields[field] = StringField(
+            field_data['label'],
+            validators=validators
+        )
+    return form_fields
 
-ProfileForm = type('ProfileForm', (FlaskForm,), profile_form_fields)
+def _sign_up_form():
+    fields = _generic_user_fields(required_only=True)
+    fields['password'] = PasswordField('Password', validators=[
+        DataRequired(),
+        EqualTo('confirm_password', 'Passwords must match')
+    ])
+    fields['confirm_password'] = PasswordField('Confirm password', validators=[
+        DataRequired()
+    ])
+    fields['submit'] = SubmitField('Create account')
+    return type('SignUpForm', (FlaskForm,), fields)
+
+
+def _profile_form():
+    fields = _generic_user_fields()
+    fields['submit'] = SubmitField('Save changes')
+    return type('ProfileForm', (FlaskForm,), fields)
+
+SignUpForm = _sign_up_form()
+ProfileForm = _profile_form()

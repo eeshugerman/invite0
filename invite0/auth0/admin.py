@@ -25,12 +25,13 @@ def user_exists(email_address: str) -> bool:
     return bool(user)
 
 
-def create_user(email_address: str, password: str):
+def create_user(email_address: str, password: str, **extras):
     """Create a new user"""
     response = _management_api_client.post(
         '/users', data={
             'email': email_address,
             'password': password,
+            **extras,
             'email_verified': 'true',
             'connection': 'Username-Password-Authentication'
         },

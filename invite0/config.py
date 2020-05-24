@@ -10,6 +10,7 @@ SERVER_NAME = env.str('INVITE0_DOMAIN')
 ORG_NAME = env.str('ORG_NAME')
 ORG_LOGO = env.url('ORG_LOGO', default=None).geturl()
 USER_FIELDS = env.list('USER_FIELDS', default=['picture', 'nickname', 'given_name', 'family_name'])
+REQUIRED_USER_FIELDS = env.list('REQUIRED_USER_FIELDS', default=[])
 INVITE_EXPIRATION_DAYS = env.decimal('INVITE_EXPIRATION_DAYS', default=5)
 INVITE_PERMISSION = env.str('INVITE_PERMISSION', default='send:invitation')
 WELCOME_URL = env.url('WELCOME_URL', default=None).geturl()
@@ -45,3 +46,7 @@ class ConfigError(Exception):
 for field in USER_FIELDS:
     if field not in data.ALL_USER_FIELDS:
         raise ConfigError('USER_FIELDS', f'Unknown field: "{field}".')
+
+for field in REQUIRED_USER_FIELDS:
+    if field not in USER_FIELDS:
+        raise ConfigError('REQUIRED_USER_FIELDS', f'"{field}" not present in USER_FIELDS.')
