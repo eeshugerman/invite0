@@ -32,6 +32,11 @@ from invite0.mail import (
 )
 
 
+@app.route('/')
+def index():
+    return redirect('/my-account')
+
+
 @app.route('/login')
 def login():
     return login_redirect()
@@ -39,7 +44,9 @@ def login():
 
 @app.route('/login_callback')
 def login_callback():
-    login_destination = handle_login_callback() or '/my-account'
+    login_destination = handle_login_callback()
+    if not login_destination:
+        return render_template('error.html', "Sorry, I don't know where to direct you.")
     return redirect(login_destination)
 
 
