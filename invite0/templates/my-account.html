@@ -3,8 +3,8 @@
 {% block content %}
 <div class="card">
     {% if 'picture' in config.USER_FIELDS %}
-    <div class="card-image">
-        <img src="{{ profile.picture }}" >
+    <div class="profile-picture-container">
+        <img src="{{ profile.picture }}" class="profile-picture">
     </div>
     {% endif %}
     <div class="card-content">
@@ -15,7 +15,7 @@
                 <td>{{ profile.email }}</td>
             </tr>
 
-            {% for field in config.USER_FIELDS | reject('==', 'picture') %}
+            {% for field in config.USER_FIELDS|reject('==', 'picture') %}
             <tr>
             <td>{{ labels[field] }}</td>
             <td>{{ profile[field] }}</td>

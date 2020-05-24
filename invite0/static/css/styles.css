@@ -33,3 +33,17 @@ form {
     margin-left: 1rem;
     margin-right: 1rem;
 }
+
+.profile-picture-container {
+	  padding: 1rem;
+}
+
+.profile-picture {
+    display: block;
+    margin: 2rem auto 1rem;
+    border-radius: 50%;
+    max-width: 70%;
+    height: auto;
+    object-fit: cover;
+
+}
