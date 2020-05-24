@@ -7,5 +7,6 @@ ALL_USER_FIELDS = {
     'name':         {'label': 'Full Name',    'validators': []},
     'nickname':     {'label': 'Nickname',     'validators': []},
     'picture':      {'label': 'Picture URL',  'validators': [URL()]},
-    'username':     {'label': 'Username',     'validators': []},
+    # username currently not supported because we need to handle the uniqueness requirement
+    # 'username':     {'label': 'Username',     'validators': []},
 }
