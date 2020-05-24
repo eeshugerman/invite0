@@ -12,3 +12,8 @@ class PasswordNoUserInfoError(Exception):
 
 class UserNotLoggedIn(Exception):
     pass
+
+
+class CanNotUnsetFieldError(Exception):
+    pass
+

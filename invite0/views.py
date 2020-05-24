@@ -22,6 +22,7 @@ from invite0.auth0.exceptions import (
     PasswordStrengthError,
     PasswordNoUserInfoError,
     UserAlreadyExistsError,
+    CanNotUnsetFieldError
 )
 from invite0.mail import (
     send_invite,
@@ -68,8 +69,12 @@ def my_account_edit():
     form = ProfileForm(data=current_user.profile)
     if form.validate_on_submit():
         profile = {field: form.data[field] for field in conf.USER_FIELDS}
-        current_user.update_profile(profile)
-        return redirect('/my-account')
+        try:
+            current_user.update_profile(profile)
+        except CanNotUnsetFieldError:
+            flash("Sorry, this field can't be unset.", 'is-danger')
+        else:
+            return redirect('/my-account')
     return render_template('my-account-edit.html', form=form)
 
 

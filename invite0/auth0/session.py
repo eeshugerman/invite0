@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from typing import List, Dict
 
 import requests
+from requests.exceptions import HTTPError
 
 from flask import session, redirect, url_for, request, render_template
 from flask import current_app as app
@@ -10,7 +11,7 @@ from authlib.integrations.flask_client import OAuth
 
 import invite0.config as conf
 from invite0.auth0._client import Auth0ManagementAPIClient
-from invite0.auth0.exceptions import UserNotLoggedIn
+from invite0.auth0.exceptions import UserNotLoggedIn, CanNotUnsetFieldError
 
 _management_api_client = Auth0ManagementAPIClient(
     domain=conf.AUTH0_DOMAIN,
@@ -54,7 +55,21 @@ class _CurrentUser:
         return _management_api_client.get(f'/users/{self.user_id}').json()
 
     def update_profile(self, data):
-        _management_api_client.patch(f'/users/{self.user_id}', data=data)
+        response = _management_api_client.patch(
+            f'/users/{self.user_id}',
+            data=data,
+            raise_for_status=False
+        )
+        try:
+            response.raise_for_status()
+        except HTTPError as e:
+            # TODO: Why doesn't Auth0 allow this? Is there a way to make it work?
+            if response.json()['message'].startswith(
+                "Payload validation error: 'String is too short (0 chars)"
+            ):
+                raise CanNotUnsetFieldError
+
+
 
     @property
     def permissions(self) -> List[str]:
