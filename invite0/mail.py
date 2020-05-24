@@ -34,7 +34,7 @@ def notify_bulk_invite_success(inviter_email, invites_cnt, skipped_cnt):
         subject=f'{conf.ORG_NAME} | Your bulk invite job is complete',
         sender=conf.MAIL_SENDER_ADDRESS,
         recipients=[inviter_email],
-        html=f'invites sent: {invites_cnt}, skipped: {skipped_cnt}',
+        html=f'invites sent: {invites_cnt}, skipped (existing users): {skipped_cnt}',
     )
     _mail.send(message)
 

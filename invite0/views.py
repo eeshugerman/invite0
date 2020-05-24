@@ -148,7 +148,6 @@ def _do_bulk_invite(email_addresses, inviter_email, app_obj):
 @requires_login
 @requires_permission(conf.INVITE_PERMISSION)
 def admin():
-
     single_form = InviteForm()
     if single_form.submit_single.data and single_form.validate_on_submit():
         email_address = single_form.email.data
@@ -159,6 +158,7 @@ def admin():
             link = url_for('signup', token=token, _external=True)
             send_invite(email_address, link)
             flash(f'Invitation sent to {email_address}!', 'is-success')
+            return redirect('/admin')
 
     bulk_form = BulkInviteForm()
     if bulk_form.submit_bulk.data and bulk_form.validate_on_submit():
@@ -171,8 +171,9 @@ def admin():
                 app._get_current_object()
             ])
             thread.start()
-            flash('Bulk invite job initiated. You will recieve an email at '
+            flash( 'Bulk invite job initiated. You will recieve an email at '
                   f'{current_user.profile["email"]} when it is complete.', 'is-success')
+            return redirect('/admin')
         else:
             flash(f'{bad_address} is not a valid email address. '
                    'Please correct or remove this value and try again.', 'is-danger')
