@@ -46,7 +46,7 @@ def login():
 def login_callback():
     login_destination = handle_login_callback()
     if not login_destination:
-        return render_template('error.html', "Sorry, I don't know where to direct you.")
+        return render_template('error.html', message="Sorry, I don't know where to direct you.")
     return redirect(login_destination)
 
 
