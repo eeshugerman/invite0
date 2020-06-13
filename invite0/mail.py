@@ -14,7 +14,7 @@ def send_invite(email_address, link, _conn=_mail):
         sender = conf.MAIL_SENDER_ADDRESS
 
     message = Message(
-        subject=f'{conf.ORG_NAME} | Sign Up',
+        subject=conf.INVITE_SUBJECT,
         sender=sender,
         recipients=[email_address],
         html=render_template('invitation.html', invite_link=link)
