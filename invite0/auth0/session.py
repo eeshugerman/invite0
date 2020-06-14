@@ -69,8 +69,6 @@ class _CurrentUser:
             ):
                 raise CanNotUnsetFieldError
 
-
-
     @property
     def permissions(self) -> List[str]:
         # TODO: Use RBAC instead? I think I tried this but it didn't work?
