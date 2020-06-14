@@ -5,6 +5,14 @@ from requests import Session
 
 
 class Auth0ManagementAPIClient:
+    """
+    A light wrapper around `requests.session` for use with the Auth0 Management API
+
+    - sets the base url
+    - authenticates on first request
+    - re-authenticates if token has expired
+    """
+
     def __init__(self, domain, client_id, client_secret):
         self._domain = domain
         self._base_url = f'https://{domain}/api/v2'
