@@ -46,6 +46,8 @@ def login():
 def login_callback():
     login_destination = handle_login_callback()
     if not login_destination:
+        # TODO: Use Flask error handling
+        # https://flask.palletsprojects.com/en/1.1.x/errorhandling/#error-handlers
         return render_template('error.html', message="Sorry, I don't know where to direct you.")
     return redirect(login_destination)
 
@@ -72,7 +74,7 @@ def my_account():
 @app.route('/my-account/edit', methods=['GET', 'POST'])
 @requires_login
 def my_account_edit():
-    # TODO: handle 400's from Auth0 gracefully
+    # TODO: handle 400s from Auth0 gracefully
     form = ProfileForm(data=current_user.profile)
     if form.validate_on_submit():
         profile = {field: form.data[field] for field in conf.USER_FIELDS}
@@ -184,6 +186,8 @@ def admin():
 @app.route('/signup/<token>', methods=['GET', 'POST'])
 def signup(token):
     def error_page(message):
+        # TODO: Use Flask error handling
+        # https://flask.palletsprojects.com/en/1.1.x/errorhandling/#error-handlers
         return render_template('error.html', message=message, hide_logout_button=True)
     try:
         email_address = read_token(token)
