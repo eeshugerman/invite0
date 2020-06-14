@@ -71,7 +71,8 @@ class _CurrentUser:
 
     @property
     def permissions(self) -> List[str]:
-        # TODO: Use RBAC instead? I think I tried this but it didn't work?
+        # TODO: Use RBAC instead? I think I tried to and
+        # it didn't work, but seems like it should.
         page_count = 0
         permissions = []
         while True:
@@ -172,6 +173,8 @@ def requires_permission(required_permission: str):
                 return func(*args, **kwargs)
             app.logger.warning(f'A user lacking the `{required_permission}` permission '
                                f'tried to access {request.path}')
+            # TODO: Use Flask error handling, return a 403
+            # https://flask.palletsprojects.com/en/1.1.x/errorhandling/#error-handlers
             return render_template(
                 'error.html',
                 message='Your account lacks the permissions required to access this page.',

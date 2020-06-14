@@ -47,6 +47,6 @@ def create_user(email_address: str, password: str, **extras):
         elif response.status_code == 409:
             raise UserAlreadyExistsError
         else:
-            app.logger.error(f'Failed to create account for {email_address}.', exc_info=e)
+            app.logger.exception(f'Failed to create account for {email_address}.')
             raise e   # to be caught by caller
     app.logger.info(f'Created user {email_address}!')

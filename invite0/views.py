@@ -212,14 +212,12 @@ def signup(token):
             # TODO: password reset link
         except Exception as e:
             flash('An unknown error occured.', 'is-danger')
-
-        app.logger.info(f'Created account for {email_address}')
-        flash('Account created!', 'is-success')
-
-        if conf.WELCOME_URL:
-            return redirect(conf.WELCOME_URL)
         else:
-            return redirect('/my-account')
+            flash('Account created!', 'is-success')
+            if conf.WELCOME_URL:
+                return redirect(conf.WELCOME_URL)
+            else:
+                return redirect('/my-account')
 
     return render_template(
         'signup.html',
