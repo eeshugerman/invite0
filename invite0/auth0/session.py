@@ -30,6 +30,8 @@ _oauth_client = OAuth(app).register(
 )
 
 
+# TODO: Use Flask-Login? Seems appropriate here, but I couldn't figure
+# out from the docs what that would look like with an external IdP.
 class _CurrentUser:
     id_cookie = 'user_id'
 
@@ -63,10 +65,10 @@ class _CurrentUser:
         try:
             response.raise_for_status()
         except HTTPError as e:
-            # TODO: Why doesn't Auth0 allow this? Is there a way to make it work?
             if response.json()['message'].startswith(
                 "Payload validation error: 'String is too short (0 chars)"
             ):
+                # TODO: Why doesn't Auth0 allow this? Is there a way to make it work?
                 raise CanNotUnsetFieldError
 
     @property
