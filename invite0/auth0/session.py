@@ -30,9 +30,26 @@ _oauth_client = OAuth(app).register(
 )
 
 
-# TODO: Use Flask-Login? Seems appropriate here, but I couldn't figure
-# out from the docs what that would look like with an external IdP.
 class _CurrentUser:
+    """
+    An abstraction over the Flask `session` and Auth0 APIs
+
+    An instance of this class has no state of its own: the Flask `session`
+    holds the state, which the instance merely reflects.
+
+    There is no need to instantiate this class outside this module -- just
+    import  `current_user` (instantiated below) -- but there is no harm in
+    doing so because, as noted above, the state is shared by all instances
+    in the session. This is essentially the borg pattern, though the shared
+    state is kept in `session` rather than as a class attribute.
+
+    This would arguably be better implemented as module, but then we wouldn't
+    get to use `@property`, and `@property` is nice.
+
+    Could we use Flask-Login instead? No, from what I can tell its not useful
+    for OAuth login, which is what we're doing.
+    """
+
     id_cookie = 'user_id'
 
     @property
@@ -56,6 +73,7 @@ class _CurrentUser:
     def profile(self) -> Dict:
         return _management_api_client.get(f'/users/{self.user_id}').json()
 
+    # TODO: make this a property setter
     def update_profile(self, data):
         response = _management_api_client.patch(
             f'/users/{self.user_id}',
@@ -68,13 +86,12 @@ class _CurrentUser:
             if response.json()['message'].startswith(
                 "Payload validation error: 'String is too short (0 chars)"
             ):
-                # TODO: Why doesn't Auth0 allow this? Is there a way to make it work?
+                # TODO: Why doesn't Auth0 allow this? Is there a way around it?
                 raise CanNotUnsetFieldError
 
     @property
     def permissions(self) -> List[str]:
-        # TODO: Use RBAC instead? I think I tried to and
-        # it didn't work, but seems like it should.
+        # tried using RBAC for this but couldn't get it to work
         page_count = 0
         permissions = []
         while True:
@@ -134,7 +151,7 @@ def handle_login_callback():
 
     See links in `login_redirect` docstring.
     """
-    _oauth_client.authorize_access_token()
+    _oauth_client.authorize_access_token()  # raises if invalid
     userinfo = _oauth_client.get('userinfo').json()
     user_id = userinfo['sub']
     current_user.log_in(user_id)

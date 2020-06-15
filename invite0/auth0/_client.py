@@ -4,6 +4,7 @@ from flask import current_app as app
 from requests import Session
 
 
+# TODO: Make this a module instead of a class. We only ever need one instance.
 class Auth0ManagementAPIClient:
     """
     A light wrapper around `requests.session` for use with the Auth0 Management API
