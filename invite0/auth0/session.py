@@ -67,9 +67,9 @@ class _CurrentUser:
     def profile(self) -> Dict:
         return auth0_mgmt.get(f'/users/{self.user_id}').json()
 
-    # TODO: make this a property setter
-    def update_profile(self, data):
-        response = _management_api_client.patch(
+    @profile.setter
+    def profile(self, data):
+        response = auth0_mgmt.patch(
             f'/users/{self.user_id}',
             data=data,
             raise_for_status=False
