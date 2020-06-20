@@ -8,18 +8,10 @@ from invite0 import data
 from invite0.forms import SignUpForm, InviteForm, BulkInviteForm, ProfileForm
 from invite0.tokens import generate_token, read_token
 from invite0.auth0.admin import user_exists, create_user
-from invite0.auth0.session import (
-    current_user,
-    login_redirect, handle_login_callback, logout_redirect,
-    requires_login, requires_permission,
-)
-from invite0.auth0.exceptions import (
-    PasswordStrengthError,
-    PasswordNoUserInfoError,
-    UserAlreadyExistsError,
-    CanNotUnsetFieldError
-)
 from invite0.mail import send_invite, spawn_bulk_invite_job, verify_addresses
+from invite0.auth0 import session
+from invite0.auth0.session import current_user, requires_login, requires_permission
+from invite0.auth0 import exceptions
 
 @app.route('/')
 def index():
@@ -28,12 +20,12 @@ def index():
 
 @app.route('/login')
 def login():
-    return login_redirect()
+    return session.login_redirect()
 
 
 @app.route('/login_callback')
 def login_callback():
-    login_destination = handle_login_callback()
+    login_destination = session.handle_login_callback()
     if not login_destination:
         # TODO: Use Flask error handling
         # https://flask.palletsprojects.com/en/1.1.x/errorhandling/#error-handlers
@@ -43,21 +35,14 @@ def login_callback():
 
 @app.route('/logout')
 def logout():
-    return logout_redirect()
+    return session.logout_redirect()
 
 
 @app.route('/my-account')
 @requires_login
 def my_account():
-    labels = {
-        field: attrs['label']
-        for field, attrs in data.ALL_USER_FIELDS.items()
-    }
-    return render_template(
-        'my-account.html',
-        profile=current_user.profile,
-        labels=labels,
-    )
+    labels = {field: attrs['label'] for field, attrs in data.ALL_USER_FIELDS.items()}
+    return render_template('my-account.html', profile=current_user.profile, labels=labels)
 
 
 @app.route('/my-account/edit', methods=['GET', 'POST'])
@@ -68,8 +53,8 @@ def my_account_edit():
     if form.validate_on_submit():
         profile = {field: form.data[field] for field in conf.USER_FIELDS}
         try:
-            current_user.update_profile(profile)
-        except CanNotUnsetFieldError:
+            current_user.profile = profile
+        except exceptions.CanNotUnsetFieldError:
             flash("Sorry, this field can't be unset.", 'is-danger')
         else:
             return redirect('/my-account')
@@ -83,56 +68,6 @@ def password_reset():
     email_address = current_user.profile['email']
     flash(f'Password reset link sent to {email_address}.', 'is-info')
     return redirect('/my-account')
-
-
-def _check_bulk_addresses(email_addresses):
-    """
-    Validate multiple email addresses (helper for /admin)
-
-    :return: first invalid email address or None if all are valid
-    """
-    for email_address in email_addresses:
-        try:
-            # mimic wtforms.validators.Email
-            # https://github.com/wtforms/wtforms/blob/master/src/wtforms/validators.py#L384-L389
-            validate_email(
-                email_address,
-                check_deliverability=False,
-                allow_smtputf8=True,
-                allow_empty_local=False,
-            )
-        except EmailNotValidError:
-            return email_address
-    return None
-
-
-def _do_bulk_invite(email_addresses, inviter_email, app_obj):
-    """ Send invites to multiple email addresses (helper for /admin) """
-    with app_obj.app_context():
-        try:
-            skipped_cnt = 0
-            recipients = []
-            for email_address in email_addresses:
-                if user_exists(email_address):
-                    skipped_cnt += 1
-                else:
-                    recipients.append(email_address)
-                # Auth0 free tier rate limits the Management API to 2 requests/second.
-                # This avoids that with some wiggle room.
-                time.sleep(1)  # seconds
-
-            tasks = []
-            for email_address in recipients:
-                token = generate_token(email_address)
-                link = url_for('signup', token=token, _external=True)
-                tasks.append((email_address, link))
-            send_invite_bulk(tasks)
-        except:
-            app.logger.exception('Error during bulk invite operation')
-            notify_bulk_invite_failure(inviter_email)
-        else:
-            notify_bulk_invite_success(inviter_email, len(recipients), skipped_cnt)
-            app.logger.info('Bulk invite job completed successfully')
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -154,20 +89,17 @@ def admin():
     bulk_form = BulkInviteForm()
     if bulk_form.submit_bulk.data and bulk_form.validate_on_submit():
         email_addresses = bulk_form.emails.data.replace(',', ' ').split()
-        bad_address = _check_bulk_addresses(email_addresses)
-        if bad_address is None:
-            thread = Thread(target=_do_bulk_invite, args=[
-                email_addresses,
-                current_user.profile['email'],
-                app._get_current_object()
-            ])
-            thread.start()
-            flash( 'Bulk invite job initiated. You will recieve an email at '
-                  f'{current_user.profile["email"]} when it is complete.', 'is-success')
-            return redirect('/admin')
-        else:
+        bad_address = verify_addresses(email_addresses)
+        if bad_address:
             flash(f'{bad_address} is not a valid email address. '
                    'Please correct or remove this value and try again.', 'is-danger')
+        else:
+            inviter_email = current_user.profile['email']
+            spawn_bulk_invite_job(email_addresses, inviter_email)
+
+            flash(f'Bulk invite job initiated. You will recieve an email at {inviter_email} '
+                   'when it is complete.', 'is-success')
+            return redirect('/admin')
 
     return render_template('admin.html', single_form=single_form, bulk_form=bulk_form)
 
@@ -192,11 +124,11 @@ def signup(token):
         extras = {field: getattr(form, field).data for field in conf.REQUIRED_USER_FIELDS}
         try:
             create_user(email_address, password=form.password.data, **extras)
-        except PasswordStrengthError:
+        except exceptions.PasswordStrengthError:
             flash('Password too weak!', 'is-danger')
-        except PasswordNoUserInfoError:
+        except exceptions.PasswordNoUserInfoError:
             flash('Password must not contain user information (eg email/username).', 'is-danger')
-        except UserAlreadyExistsError:
+        except exceptions.UserAlreadyExistsError:
             flash('An account already exists for your email address.', 'is-danger')
             # TODO: password reset link
         except Exception as e:
