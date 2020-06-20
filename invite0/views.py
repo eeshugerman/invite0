@@ -1,12 +1,7 @@
-import time
-from threading import Thread
-
 from flask import current_app as app
 from flask import redirect, render_template, flash, url_for
 
 from itsdangerous import SignatureExpired, BadSignature
-from email_validator import validate_email, EmailNotValidError
-
 
 import invite0.config as conf
 from invite0 import data
@@ -24,13 +19,7 @@ from invite0.auth0.exceptions import (
     UserAlreadyExistsError,
     CanNotUnsetFieldError
 )
-from invite0.mail import (
-    send_invite,
-    send_invite_bulk,
-    notify_bulk_invite_success,
-    notify_bulk_invite_failure
-)
-
+from invite0.mail import send_invite, spawn_bulk_invite_job, verify_addresses
 
 @app.route('/')
 def index():
