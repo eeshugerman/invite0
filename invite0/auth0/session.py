@@ -10,14 +10,8 @@ from flask import current_app as app
 from authlib.integrations.flask_client import OAuth
 
 import invite0.config as conf
-from invite0.auth0._client import Auth0ManagementAPIClient
+import invite0.auth0.management_client as auth0_mgmt
 from invite0.auth0.exceptions import UserNotLoggedIn, CanNotUnsetFieldError
-
-_management_api_client = Auth0ManagementAPIClient(
-    domain=conf.AUTH0_DOMAIN,
-    client_id=conf.AUTH0_CLIENT_ID,
-    client_secret=conf.AUTH0_CLIENT_SECRET,
-)
 
 _oauth_client = OAuth(app).register(
     'auth0',
@@ -71,7 +65,7 @@ class _CurrentUser:
 
     @property
     def profile(self) -> Dict:
-        return _management_api_client.get(f'/users/{self.user_id}').json()
+        return auth0_mgmt.get(f'/users/{self.user_id}').json()
 
     # TODO: make this a property setter
     def update_profile(self, data):
@@ -91,11 +85,11 @@ class _CurrentUser:
 
     @property
     def permissions(self) -> List[str]:
-        # tried using RBAC for this but couldn't get it to work
+        # TODO: give RBAC another try; it should work for this
         page_count = 0
         permissions = []
         while True:
-            page = _management_api_client.get(
+            page = auth0_mgmt.get(
                 f'/users/{self.user_id}/permissions',
                 params={'page': page_count, 'include_totals': 'true'}
             ).json()
@@ -120,6 +114,7 @@ class _CurrentUser:
 
 current_user = _CurrentUser()
 
+# TODO: Look into Flask-Dance -- i think it does what the next three functions do
 
 def login_redirect():
     """
@@ -146,7 +141,7 @@ def handle_login_callback():
     Complete authentication flow, store user info, and return the original route
 
     The authorization code is fetched from the request context and exchanged
-    for an access token. The access token is used to call the /userinfo endpoint
+    for an access token. The access token is used to call the /userinfo resource
     for the user ID and name, which are then stored in the session.
 
     See links in `login_redirect` docstring.

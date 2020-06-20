@@ -3,32 +3,24 @@ from flask import current_app as app
 from requests.exceptions import HTTPError
 
 import invite0.config as conf
-from invite0.auth0._client import Auth0ManagementAPIClient
+import invite0.auth0.management_client as auth0_mgmt
 from invite0.auth0.exceptions import (
     PasswordStrengthError,
     UserAlreadyExistsError,
     PasswordNoUserInfoError,
 )
 
-_management_api_client = Auth0ManagementAPIClient(
-    domain=conf.AUTH0_DOMAIN,
-    client_id=conf.AUTH0_CLIENT_ID,
-    client_secret=conf.AUTH0_CLIENT_SECRET,
-)
-
 def user_exists(email_address: str) -> bool:
     """Check if a user exists"""
-    user = _management_api_client.get(
-        '/users-by-email',
-        params={'email': email_address}
-    ).json()
+    user = auth0_mgmt.get('/users-by-email', params={'email': email_address}).json()
     return bool(user)
 
 
 def create_user(email_address: str, password: str, **extras):
     """Create a new user"""
-    response = _management_api_client.post(
-        '/users', data={
+    response = auth0_mgmt.post(
+        '/users',
+        data={
             'email': email_address,
             'password': password,
             **extras,
