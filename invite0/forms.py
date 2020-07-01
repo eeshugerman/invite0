@@ -16,9 +16,9 @@ class BulkInviteForm(FlaskForm):
     submit_bulk = SubmitField('Send invititations')
 
 
-# generate ProfileForm and SignUpForm dynamically based on config.[REQUIRED_]USER_FIELDS
-# the use of functions is unnecessary, just doing so to impose some structure
+# generate ProfileForm and SignUpForm dynamically based on `config.[REQUIRED_]USER_FIELDS`
 # TODO: could this be a good metaclass usecase?
+
 def _generic_user_fields(required_only=False):
     form_fields = {}
     for field in (conf.REQUIRED_USER_FIELDS if required_only else conf.USER_FIELDS):
@@ -50,5 +50,6 @@ def _profile_form():
     fields['submit'] = SubmitField('Save changes')
     return type('ProfileForm', (FlaskForm,), fields)
 
+# the use of functions here is unnecessary, just doing this to provide some structure
 SignUpForm = _sign_up_form()
 ProfileForm = _profile_form()
