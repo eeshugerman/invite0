@@ -1,5 +1,6 @@
+> **NOTE**: Auth0 recently introduced [Organizations](https://auth0.com/docs/organizations) which includes some [email invite functionality](https://auth0.com/docs/organizations/send-membership-invitations). I haven't looked into it closely, but you should, as it may yield Invite0 obsolete. It's unclear to me if it's included in the free tier -- let me know if you find out!
+
 # Overview
-> **NOTE**: Auth0 recently introduced [Organizations](https://auth0.com/docs/organizations) which includes some [email invite functionality](https://auth0.com/docs/organizations/send-membership-invitations). I haven't looked into it closely, but you should, as it may yield Invite0 obsolete. I don't think it's free, however... but I'm not sure.
 
 ## What is it?
 Invite0 is a small web app which augments the popular [Auth0](https://auth0.com) service, providing code-free support for "invite only" tenants.
